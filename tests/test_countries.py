@@ -10,78 +10,61 @@ from openfisca_core.periods import YEAR
 from openfisca_core.taxbenefitsystems import VariableNameConflict, VariableNotFound
 from openfisca_core import periods
 from openfisca_core.formulas import DIVIDE
-from openfisca_dummy_country import DummyTaxBenefitSystem
+from openfisca_country_template import CountryTaxBenefitSystem
 from openfisca_core.tools import assert_near
 
 
-tax_benefit_system = DummyTaxBenefitSystem()
+tax_benefit_system = CountryTaxBenefitSystem()
 
 
 def test_input_variable():
-    year = 2016
-
-    simulation = tax_benefit_system.new_scenario().init_single_entity(
-        period = year,
-        parent1 = dict(
-            salaire_brut = 2000,
-            ),
-        ).new_simulation()
-    assert_near(simulation.calculate_add('salaire_brut', year), [2000], absolute_error_margin=0.01)
+    period = "2016-01"
+    simulation = tax_benefit_system.new_scenario().init_from_attributes(
+    period = period,
+    input_variables = {
+        'salary': 2000,
+        },
+    ).new_simulation()
+    assert_near(simulation.calculate_add('salary', period), [2000], absolute_error_margin = 0.01)
 
 
 def test_basic_calculation():
-    year = 2016
-
-    simulation = tax_benefit_system.new_scenario().init_single_entity(
-        period = year,
-        parent1 = dict(
-            salaire_brut = 2000,
+    period = "2016-01"
+    simulation = tax_benefit_system.new_scenario().init_from_attributes(
+        period = period,
+        input_variables = dict(
+            salary = 2000,
             ),
         ).new_simulation()
-    assert_near(simulation.calculate_add('salaire_net', year), [1600], absolute_error_margin=0.01)
-
-
-def test_params():
-    year = 2013
-
-    simulation = tax_benefit_system.new_scenario().init_single_entity(
-        period = year,
-        parent1 = dict(
-            salaire_imposable = 10000,
-            ),
-        ).new_simulation()
-    assert_near(simulation.calculate('revenu_disponible', year), [7000], absolute_error_margin=0.01)
+    assert_near(simulation.calculate_add('income_tax', period), [300], absolute_error_margin = 0.01)
 
 
 def test_bareme():
-    year = 2017
-
-    simulation = tax_benefit_system.new_scenario().init_single_entity(
-        period = year,
-        parent1 = dict(
-            salaire_brut = 20000,
+    period = "2016-01"
+    simulation = tax_benefit_system.new_scenario().init_from_attributes(
+        period = period,
+        input_variables = dict(
+            salary = 20000,
             ),
         ).new_simulation()
     expected_result = 0.02 * 6000 + 0.06 * 6400 + 0.12 * 7600
-    assert_near(simulation.calculate('contribution_sociale', year), [expected_result], absolute_error_margin=0.01)
+    assert_near(simulation.calculate('social_security_contribution', period), [expected_result], absolute_error_margin = 0.01)
 
 
 def test_1_axis():
-    year = 2013
-    simulation = tax_benefit_system.new_scenario().init_single_entity(
+    period = "2016-01"
+    simulation = tax_benefit_system.new_scenario().init_from_attributes(
         axes = [
             dict(
                 count = 3,
-                name = 'salaire_brut',
-                max = 100000,
+                name = 'salary',
+                max = 3000,
                 min = 0,
                 ),
             ],
-        period = year,
-        parent1 = {},
-        parent2 = {},
+        period = period,
         ).new_simulation(debug = True)
-    assert_near(simulation.calculate('revenu_disponible_famille', year), [7200, 28800, 54000], absolute_error_margin = 0.005)
+    assert_near(simulation.calculate('income_tax', period), [0, 225, 550], absolute_error_margin = 0.005)
 
 
 def test_2_parallel_axes_1_constant():
