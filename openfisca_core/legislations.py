@@ -158,7 +158,7 @@ class TracedCompactNode(object):
     A proxy for CompactNode which stores the a simulation instance. Used for simulations with trace mode enabled.
 
     Overload __delitem__, __getitem__ and __setitem__ even if __getattribute__ is defined because of:
-    http://stackoverflow.com/questions/11360020/why-is-getattribute-not-invoked-on-an-implicit-getitem-invocation
+    https://stackoverflow.com/questions/11360020/why-is-getattribute-not-invoked-on-an-implicit-getitem-invocation
     """
     compact_node = None
     simulation = None
@@ -314,7 +314,7 @@ def generate_dated_json_value(values_json, instant_str):
 def generate_dated_legislation_json(legislation_json, instant):
     instant_str = str(periods.instant(instant))
     dated_legislation_json = generate_dated_node_json(legislation_json, instant_str)
-    dated_legislation_json['@context'] = u'http://openfisca.fr/contexts/dated-legislation.jsonld'
+    dated_legislation_json['@context'] = u'https://openfisca.fr/contexts/dated-legislation.jsonld'
     dated_legislation_json['instant'] = instant_str
     return dated_legislation_json
 
@@ -443,7 +443,7 @@ def validate_dated_node_json(node, state = None):
             '@context': conv.pipe(
                 conv.test_isinstance(basestring),
                 conv.make_input_to_url(full = True),
-                conv.test_equals(u'http://openfisca.fr/contexts/dated-legislation.jsonld'),
+                conv.test_equals(u'https://openfisca.fr/contexts/dated-legislation.jsonld'),
                 ),
             '@type': conv.pipe(
                 conv.test_isinstance(basestring),
@@ -695,7 +695,7 @@ def validate_node_json(node, state = None):
             '@context': conv.pipe(
                 conv.test_isinstance(basestring),
                 conv.make_input_to_url(full = True),
-                conv.test_equals(u'http://openfisca.fr/contexts/legislation.jsonld'),
+                conv.test_equals(u'https://openfisca.fr/contexts/legislation.jsonld'),
                 ),
             '@type': conv.pipe(
                 conv.test_isinstance(basestring),
